@@ -1,0 +1,13 @@
+
+
+
+#define bool	_Bool
+#define true	1
+#define false	0
+
+
+
+bool enter_VLPR();
+
+bool enter_VLPS();
+
