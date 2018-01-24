@@ -16,7 +16,7 @@
 #pragma  pack(push,1)
 struct comData
 {
-	uint_8 body[2];
+	uint_8 body[3];
 };
 #pragma  pack(pop)
 
@@ -38,7 +38,7 @@ uint_8* frameCreate();
 //       frameLen:组帧后的数据长度，用于发送
 //函数返回：0：成功
 //=====================================================================
-uint_16 frameEncode(struct comData data, uint_8 _type, uint_8 *frame);
+uint_16 frameEncode(struct comData data, uint_8 *frame);
 
 //=====================================================================
 //函数名称：frameDecode

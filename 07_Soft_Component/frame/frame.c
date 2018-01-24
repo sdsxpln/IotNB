@@ -25,7 +25,7 @@ uint_8* frameCreate()
 //       frameLen:组帧后的数据长度，用于发送
 //函数返回：数据长度
 //=====================================================================
-uint_16 frameEncode(struct comData data, uint_8 _type, uint_8 *frame)
+uint_16 frameEncode(struct comData data, uint_8 *frame)
 {
 	/**
 	 * 数据格式，共计19+N字节：
@@ -41,7 +41,7 @@ uint_16 frameEncode(struct comData data, uint_8 _type, uint_8 *frame)
 
 	uint_32 requestId = 1; // （2）请求设备requestId
 	uint_32 nodeId = 2; // （3）节点nodeId
-	uint_8 type = _type; // （4）帧类型type
+	uint_8 type = 0; // （4）帧类型type
 	uint_32 frameId = 4; // （5）设备帧号frameId
 	uint_8 *frameData = 0; // （6）存放数据的指针
 	uint_16 crc; // （7）存放CRC的值

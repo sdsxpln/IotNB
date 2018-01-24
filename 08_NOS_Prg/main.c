@@ -89,9 +89,10 @@ int main(void)
 			while(1)
 			{
 				lightSensor = getLightSensor();					// 获取光敏值
-				cd.body[0] = lightSensor >> 8;
-				cd.body[1] = lightSensor & 0xFF;
-				mframeLen = frameEncode(cd, 1, mframe);			//组帧操作
+				cd.body[0] = 1;									// 数据类型
+				cd.body[1] = lightSensor >> 8;
+				cd.body[2] = lightSensor & 0xFF;
+				mframeLen = frameEncode(cd, mframe);			//组帧操作
 				LCDShowRunMsg('H', 1, 1005);					//LCD提示“H1-1005”,表示开始发送数据
 				printf("H1-1005, NB-IOT Module Send Light Data\n");
 				mflag = uecom_send(mframeLen, mframe);			//发送帧操作
@@ -115,9 +116,10 @@ int main(void)
 			while(1)
 			{
 				mcuTemp = getMCUTemp();							// 获取MCU温度值
-				cd.body[0] = mcuTemp >> 8;
-				cd.body[1] = mcuTemp & 0xFF;
-				mframeLen = frameEncode(cd, 2, mframe);			//组帧操作
+				cd.body[0] = 2;									// 数据类型
+				cd.body[1] = mcuTemp >> 8;
+				cd.body[2] = mcuTemp & 0xFF;
+				mframeLen = frameEncode(cd, mframe);			//组帧操作
 				LCDShowRunMsg('H', 1, 1007);					//LCD提示“H1-1007”,表示开始发送数据
 				printf("H1-1005, NB-IOT Module MCU Light Data\n");
 				mflag = uecom_send(mframeLen, mframe);			//发送帧操作
