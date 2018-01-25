@@ -15,6 +15,10 @@ int main(void)
 	uint_16 signalPower = 0;			// 获取信号强度
 	uint_16 lightSensor = 0;			// 获取光敏值
 	uint_16 mcuTemp = 0;				// 获取MCU温度值
+	uint_8 lightErrCount = 0;			// 光敏数据发送错误次数
+	uint_8 mcuErrCount = 0;				// MCU数据发送错误次数
+	uint_8 serverIp[] = "39.104.87.214";	// 服务器IP
+	uint_8 serverPort[] = "8080";				// 服务器端口
 
 	isSendData = 0;						// 没有发送数据
 	isReceiveData = 0;					// 没有接收数据
@@ -46,7 +50,7 @@ int main(void)
 	printf("Enter Send And Receive Operate\n");
 	LCDShowRunMsg('H', 1, 1001);								// LCD提示“H1-1001”,表示给UE供电
 	printf("H1-1001, Power On NB-IOT Module\n");
-	gpio_set(PTE_NUM | 22,1);									// UE模块供电
+	gpio_set(PTE_NUM | 22, 1);									// UE模块供电
 	Delay_ms(2000);
 
 	//（7）UE模块初始化
@@ -54,7 +58,7 @@ int main(void)
 	printf("H1-1002, Initialize NB-IOT Module\n");
 //	mflag = uecom_init(mRetdata, "39.104.87.214", "7280");		// 设置服务器IP和端口号
 //	mflag = uecom_init(mRetdata, "139.129.39.20", "8080");		// 设置服务器IP和端口号
-	mflag = uecom_init(mRetdata, "39.104.87.214", "8080");			// 设置服务器IP和端口号
+	mflag = uecom_init(mRetdata, serverIp, serverPort);			// 设置服务器IP和端口号
 
 	//（8）根据初始化是否成功，决定是否发送数据
 	if(mflag)													// 初始化失败，LCD显示提示
@@ -102,10 +106,31 @@ int main(void)
 				{
 					LCDShowRunMsg('F', 1, 2500 + mflag);
 					printf("F2-%d, UE Send Light Data Fail\n", 2000 + mflag);
+					if(lightErrCount >= 10)							// 发送数据失败10次就把GPRS重启
+					{
+						while(1)
+						{
+							gpio_set(PTE_NUM | 22, 0);				// GPRS断电
+							Delay_ms(2000);
+							gpio_set(PTE_NUM | 22, 1);				// GPRS上电
+							Delay_ms(2000);
+							mflag = uecom_init(mRetdata, serverIp, serverPort);			// 设置服务器IP和端口号
+							if(mflag == 0)													// 初始化失败，LCD显示提示
+							{
+								break;
+							}
+						}
+
+					}
+					else
+					{
+						lightErrCount++;
+					}
 					Delay_ms(2000);
 				}
 				else
 				{
+					lightErrCount = 0;
 					break;
 				}
 			}
@@ -129,10 +154,31 @@ int main(void)
 				{
 					LCDShowRunMsg('F', 1, 2700 + mflag);
 					printf("F2-%d, UE Send MCU Data Fail\n", 2000 + mflag);
+					if(mcuErrCount >= 10)							// 发送数据失败10次就把GPRS重启
+					{
+						while(1)
+						{
+							gpio_set(PTE_NUM | 22, 0);				// GPRS断电
+							Delay_ms(2000);
+							gpio_set(PTE_NUM | 22, 1);				// GPRS上电
+							Delay_ms(2000);
+							mflag = uecom_init(mRetdata, serverIp, serverPort);			// 设置服务器IP和端口号
+							if(mflag == 0)													// 初始化失败，LCD显示提示
+							{
+								break;
+							}
+						}
+
+					}
+					else
+					{
+						mcuErrCount++;
+					}
 					Delay_ms(2000);
 				}
 				else
 				{
+					mcuErrCount = 0;
 					break;
 				}
 			}
@@ -145,9 +191,6 @@ int main(void)
 
 		if(isReceiveData)
 		{
-//			mframe;
-//			mframeLen = 0;
-
 			printf("H1-1006, NB-IOT Module Receive Data Length %d\n", mframeLen);
 			printf("Receive Data %d %d %d %d %d %d %d %d %d %d\n",
 					mframe[0], mframe[1],
@@ -157,31 +200,6 @@ int main(void)
 			mframeLen = 0;
 			isReceiveData = 0;
 		}
-
-//		//（12）UE模块接收数据
-//		LCDShowRunMsg('H', 1, 1007);                 //LCD提示“H1-1007”,表示等待接收数据
-//		printf("H1-1007, NB-IOT Module Receive Data...\n");
-//		mflag = uecom_recv(&mframeLen, mframe);
-//		if(mflag)
-//		{
-//			LCDShowRunMsg('F', 1, 3000+mflag);           //LCD提示“F1-30xx”,数据接收失败提示
-//			printf("F3-%d, NB-IOT Module Receive Data Fail\n", 3000 + mflag);
-//
-//			mSendFlag = 0;											//修改发送标记
-//			gpio_set(PTE_NUM | 22, 0);								//UE模块断电
-//			printf("NB-IOT Module Power Off\n");
-//
-//			break;
-//		}
-//		LCDShowRunMsg('H',1,1008);                 //LCD提示“H1-1008”,表示接收数据成功
-//		printf("H1-1008, NB-IOT Module Receive Data Success\n");
-////			frameDecode(mframe,&cd);                   //解析帧数据，信息写入结构体
-////			LCDShowRunMsg('H',1,1009);                 //LCD提示“H1-1009”,表示数据解析成功
-////			printf("提示H1-1009，通信模块接收数据解析成功\n");
-//
-//		gpio_set(PTE_NUM | 22, 0);									//UE模块断电
-//		printf("NB-IOT Module Power Off\n");
-//		Delay_ms(2000);
 	}
 }
 
